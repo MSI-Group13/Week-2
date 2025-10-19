@@ -1,0 +1,85 @@
+// Segment pins
+const int segmentA = 2;
+const int segmentB = 3;
+const int segmentC = 4;
+const int segmentD = 5;
+const int segmentE = 6;
+const int segmentF = 7;
+const int segmentG = 8;
+
+// Button pins
+const int buttonIncrement = 13;
+const int buttonReset = 12;
+
+// State variables
+int currentNumber = 0;
+bool lastIncrementState = HIGH;
+bool lastResetState = HIGH;
+
+// Digit segment map: A-G for digits 0-9 (0 = ON, 1 = OFF for common cathode)
+const bool digitMap[10][7] = {
+  {LOW, LOW, LOW, LOW, LOW, LOW, HIGH},  // 0
+  {HIGH, LOW, LOW, HIGH, HIGH, HIGH, HIGH},  // 1
+  {LOW, LOW, HIGH, LOW, LOW, HIGH, LOW},  // 2
+  {LOW, LOW, LOW, LOW, HIGH, HIGH, LOW},  // 3
+  {HIGH, LOW, LOW, HIGH, HIGH, LOW, LOW},  // 4
+  {LOW, HIGH, LOW, LOW, HIGH, LOW, LOW},  // 5
+  {LOW, HIGH, LOW, LOW, LOW, LOW, LOW},  // 6
+  {LOW, LOW, LOW, HIGH, HIGH, HIGH, HIGH},  // 7
+  {LOW, LOW, LOW, LOW, LOW, LOW, LOW},  // 8
+  {LOW, LOW, LOW, LOW, HIGH, LOW, LOW}   // 9
+};
+
+void setup() {
+  // Set up segment pins
+  pinMode(segmentA, OUTPUT);
+  pinMode(segmentB, OUTPUT);
+  pinMode(segmentC, OUTPUT);
+  pinMode(segmentD, OUTPUT);
+  pinMode(segmentE, OUTPUT);
+  pinMode(segmentF, OUTPUT);
+  pinMode(segmentG, OUTPUT);
+
+  // Set up button pins
+  pinMode(buttonIncrement, INPUT_PULLUP); // Use pull-up resistors
+  pinMode(buttonReset, INPUT_PULLUP);
+
+  // Display initial number
+  displayDigit(currentNumber);
+}
+
+void loop() {
+  // Read button states (LOW = pressed)
+  bool incrementState = digitalRead(buttonIncrement);
+  bool resetState = digitalRead(buttonReset);
+
+  // Handle increment button press
+  if (incrementState == LOW && lastIncrementState == HIGH) {
+    currentNumber++;
+    if (currentNumber > 9) currentNumber = 0;
+    displayDigit(currentNumber);
+    delay(200);  // Simple debounce delay
+  }
+
+  // Handle reset button press
+  if (resetState == LOW && lastResetState == HIGH) {
+    currentNumber = 0;
+    displayDigit(currentNumber);
+    delay(200);  // Simple debounce delay
+  }
+
+  // Save the current state for next loop
+  lastIncrementState = incrementState;
+  lastResetState = resetState;
+}
+
+// Function to display a digit on the 7-segment
+void displayDigit(int digit) {
+  digitalWrite(segmentA, digitMap[digit][0]);
+  digitalWrite(segmentB, digitMap[digit][1]);
+  digitalWrite(segmentC, digitMap[digit][2]);
+  digitalWrite(segmentD, digitMap[digit][3]);
+  digitalWrite(segmentE, digitMap[digit][4]);
+  digitalWrite(segmentF, digitMap[digit][5]);
+  digitalWrite(segmentG, digitMap[digit][6]);
+}
